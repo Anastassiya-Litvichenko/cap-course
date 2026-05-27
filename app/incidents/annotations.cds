@@ -1,4 +1,4 @@
-using ProcessorService as service from '../../srv/ services';
+using ProcessorService as service from '../../srv/services';
 using from '../../db/schema';
 
 annotate service.Incidents with @(

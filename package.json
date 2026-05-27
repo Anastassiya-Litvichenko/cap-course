@@ -10,7 +10,9 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "watch-incidents": "cds watch --open ns.incidents/index.html?sap-ui-xx-viewCache=false --livereload false"
+    "watch-incidents": "cds watch --open ns.incidents/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-incidents-freestyle": "cds watch --open incidentsfreestyle/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-monitor-incidents": "cds watch --open monitorincidents/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
   "private": true,
   "workspaces": [
