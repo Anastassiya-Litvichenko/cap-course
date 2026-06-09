@@ -9,7 +9,6 @@ class ProcessorService extends cds.ApplicationService {
     this.after('READ', 'Incidents', async (incidents, req) => {
       const { Customers } = this.entities;
       const customers = await SELECT.from(Customers);
-      debugger;
       console.log('Customers:', customers);
     });
 
