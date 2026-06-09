@@ -12,6 +12,11 @@ service ProcessorService {
 
     @readonly
     entity ListOfIncidents as projection on my.ListOfIncidents;
+
+    entity Items as projection on my.Items;
+
+    function getItemsByQuantity(quantity: Integer) returns many Items;
+    action   createItem(title: String, descr: String, quantity: Integer) returns Items;
 }
 
 annotate ProcessorService.Incidents with @odata.draft.enabled; 

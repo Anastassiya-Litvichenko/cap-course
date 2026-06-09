@@ -67,7 +67,7 @@
         "preload": true,
         "settings": {
           "operationMode": "Server",
-          "autoExpandSelect": true,
+          "autoExpandSelect": false,
           "earlyRequests": true
         }
       }
