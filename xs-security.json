@@ -1,0 +1,59 @@
+{
+  "xsappname": "xsuaa-jwt",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Display",
+      "description": "View resources"
+    },
+    {
+      "name": "$XSAPPNAME.Edit",
+      "description": "Edit resources"
+    },
+    {
+      "name": "$XSAPPNAME.Delete",
+      "description": "Delete resources"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "Country",
+      "description": "Country attribute",
+      "valueType": "string"
+    },
+    {
+      "name": "CostCenter",
+      "description": "Cost center attribute",
+      "valueType": "int"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Viewer",
+      "description": "View only",
+      "scope-references": [
+        "$XSAPPNAME.Display"
+      ],
+      "attribute-references": [
+        "Country"
+      ]
+    },
+    {
+      "name": "Editor",
+      "description": "Edit and delete",
+      "scope-references": [
+        "$XSAPPNAME.Edit",
+        "$XSAPPNAME.Delete"
+      ],
+      "attribute-references": [
+        "Country",
+        "CostCenter"
+      ]
+    }
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "https://httpbin.org/get"
+    ]
+  }
+}
