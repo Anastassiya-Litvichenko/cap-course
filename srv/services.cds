@@ -17,6 +17,18 @@ service ProcessorService {
 
     function getItemsByQuantity(quantity: Integer) returns many Items;
     action   createItem(title: String, descr: String, quantity: Integer) returns Items;
+    function getOrders() returns array of {
+        OrderID: Integer;
+        CustomerID: String;
+        OrderDate: DateTime;
+        ShipCountry: String;
+    };
+    function getOrders2() returns array of {
+    OrderID: Integer;
+    CustomerID: String;
+    OrderDate: DateTime;
+    ShipCountry: String;
+    };
 }
 
 annotate ProcessorService.Incidents with @odata.draft.enabled; 
