@@ -1,0 +1,191 @@
+_schema-version: 3.3.0
+ID: cap-course
+version: 1.0.0
+description: "A simple CAP project."
+parameters:
+  enable-parallel-deployments: true
+  deploy_mode: html5-repo
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production
+modules:
+  - name: cap-course-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      instances: 1
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm-ci
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: cap-course-auth
+      - name: cap-course-db
+      - name: cap-course-destination
+
+  - name: cap-course-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: cap-course-db
+
+  - name: cap-course
+    type: approuter.nodejs
+    path: app/router
+    parameters:
+      keep-existing-routes: true
+      disk-quota: 256M
+      memory: 256M
+    properties:
+      OWN_SAP_CLOUD_SERVICE: '["cap-course"]'
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: cap-course-auth
+      - name: cap-course-destination
+      - name: cap-course-html5-runtime
+        parameters:
+          service-name: cap-course-html5-runtime
+    provides:
+      - name: app-api
+        properties:
+          app-protocol: ${protocol}
+          app-uri: ${default-uri}
+
+  - name: cap-course-app-deployer
+    type: com.sap.application.content
+    path: gen
+    build-parameters:
+      build-result: app/
+      requires:
+        - name: cap-course-incidents
+          artifacts:
+            - incidents.zip
+          target-path: app/
+        - name: capcoursemonitorincidents
+          artifacts:
+            - monitor-incidents.zip
+          target-path: app/
+    requires:
+      - name: cap-course-auth
+      - name: srv-api
+      - name: cap-course-html5-repo-host
+        parameters:
+          content-target: true
+          config:
+            HTML5Runtime_enabled: true
+
+  - name: cap-course-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: cap-course-destination
+        parameters:
+          content-target: true
+      - name: cap-course-html5-repo-host
+        parameters:
+          service-key:
+            name: cap-course-html5-repo-host-key
+      - name: cap-course-auth
+        parameters:
+          service-key:
+            name: cap-course-auth-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Name: cap-course-html5-repo-host
+              ServiceInstanceName: cap-course-html5-repo-host
+              ServiceKeyName: cap-course-html5-repo-host-key
+              sap.cloud.service: cap-course
+            - Authentication: OAuth2UserTokenExchange
+              Name: cap-course-auth
+              ServiceInstanceName: cap-course-auth
+              ServiceKeyName: cap-course-auth-key
+              sap.cloud.service: cap-course
+          existing_destinations_policy: ignore
+    build-parameters:
+      no-source: true
+
+  - name: cap-course-incidents
+    type: html5
+    path: app/incidents
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npm run build
+      supported-platforms: []
+
+  - name: capcoursemonitorincidents
+    type: html5
+    path: app/monitor-incidents
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npm run build
+      supported-platforms: []
+
+resources:
+  - name: cap-course-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: cap-course-${org}-${space}
+        tenant-mode: dedicated
+        oauth2-configuration:
+          credential-types:
+            - "binding-secret"
+            - "x509"
+          redirect-uris:
+            - https://*~{app-api/app-uri}/**
+        role-collections:
+          - name: 'support (cap-course ${org}-${space})'
+            description: 'generated'
+            role-template-references:
+              - '$XSAPPNAME.support'
+          - name: 'admin (cap-course ${org}-${space})'
+            description: 'generated'
+            role-template-references:
+              - '$XSAPPNAME.admin'
+    requires:
+      - name: app-api
+  - name: cap-course-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+  - name: cap-course-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+  - name: cap-course-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+      config:
+        sizeLimit: 2
+  - name: cap-course-html5-runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-runtime

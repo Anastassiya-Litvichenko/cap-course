@@ -37,21 +37,21 @@
           "kind": "mocked",
           "users": {
             "alice": {
-              "roles": [
-                "support"
-              ]
+              "roles": ["support"]
             },
             "bob": {
-              "roles": [
-                "support"
-              ]
+              "roles": ["support"]
             }
           }
         }
       },
       "API_BUSINESS_PARTNER": {
         "kind": "odata-v2",
-        "model": "srv/external/API_BUSINESS_PARTNER"
+        "model": "srv/external/API_BUSINESS_PARTNER",
+        "credentials": {
+          "destination": "API_BUSINESS_PARTNER",
+          "requestTimeout": 30000
+        }
       },
       "Northwind": {
         "kind": "odata-v2",
@@ -62,7 +62,8 @@
       },
       "[production]": {
         "db": "hana",
-        "auth": "xsuaa"
+        "auth": "xsuaa",
+        "html5-repo": true
       }
     }
   }
