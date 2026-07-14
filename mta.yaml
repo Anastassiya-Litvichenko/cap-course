@@ -28,6 +28,7 @@ modules:
       - name: cap-course-auth
       - name: cap-course-db
       - name: cap-course-destination
+      - name: cap-course-connectivity
 
   - name: cap-course-db-deployer
     type: hdb
@@ -78,6 +79,10 @@ modules:
           artifacts:
             - monitor-incidents.zip
           target-path: app/
+        - name: cap-course-workzone-cdm
+          artifacts:
+            - cdm.json
+          target-path: app/
     requires:
       - name: cap-course-auth
       - name: srv-api
@@ -118,6 +123,37 @@ modules:
     build-parameters:
       no-source: true
 
+  - name: cap-course-destinations
+    type: com.sap.application.content
+    requires:
+      - name: cap-course-html5-repo-runtime
+        parameters:
+          service-key:
+            name: cap-course-html5-repo-runtime-service-key
+      - name: cap-course-auth
+        parameters:
+          service-key:
+            name: cap-course-auth-key
+      - name: cap-course-html5-repo-host
+        parameters:
+          service-key:
+            name: cap-course-html5-repo-host-key
+      - name: srv-api
+      - name: cap-course-destination
+        parameters:
+          content-target: true
+    parameters:
+      content:
+        subaccount:
+          existing_destinations_policy: update
+          destinations:
+            - Name: cap-course-cdm
+              ServiceInstanceName: cap-course-html5-repo-runtime-service
+              ServiceKeyName: cap-course-html5-repo-runtime-service-key
+              URL: https://html5-apps-repo-rt.cfapps.us10.hana.ondemand.com/applications/cdm/cap-course
+    build-parameters:
+      no-source: true
+
   - name: cap-course-incidents
     type: html5
     path: app/incidents
@@ -138,6 +174,13 @@ modules:
       commands:
         - npm ci
         - npm run build
+      supported-platforms: []
+
+  - name: cap-course-workzone-cdm
+    type: html5
+    path: workzone
+    build-parameters:
+      build-result: .
       supported-platforms: []
 
 resources:
@@ -177,6 +220,17 @@ resources:
     parameters:
       service: destination
       service-plan: lite
+      config:
+        init_data:
+          subaccount:
+            existing_destinations_policy: update
+            destinations:
+              - Name: cap-course-rt
+                Authentication: NoAuthentication
+                ProxyType: Internet
+                Type: HTTP
+                URL: https://06f7d5d4trial.launchpad.${default-domain}
+                CEP.HTML5contentprovider: true
   - name: cap-course-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
@@ -189,3 +243,14 @@ resources:
     parameters:
       service: html5-apps-repo
       service-plan: app-runtime
+  - name: cap-course-html5-repo-runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-runtime
+      service-name: cap-course-html5-repo-runtime-service
+  - name: cap-course-connectivity
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: connectivity
+      service-plan: lite

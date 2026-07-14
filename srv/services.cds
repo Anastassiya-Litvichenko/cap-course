@@ -29,6 +29,7 @@ service ProcessorService {
     OrderDate: DateTime;
     ShipCountry: String;
     };
+    function getOnPremiseString() returns String;
 }
 
 annotate ProcessorService.Incidents with @odata.draft.enabled; 

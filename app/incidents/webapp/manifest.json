@@ -24,6 +24,19 @@
           "odataVersion": "4.01"
         }
       }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "incidents-display": {
+          "semanticObject": "Incidents",
+          "action": "display",
+          "title": "{{appTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
     }
   },
   "sap.ui": {
@@ -103,6 +116,7 @@
             "settings": {
               "contextPath": "/Incidents",
               "variantManagement": "Page",
+              "initialLoad": "Enabled",
               "navigation": {
                 "Incidents": {
                   "detail": {
@@ -116,8 +130,7 @@
                     "type": "ResponsiveTable"
                   }
                 }
-              },
-              "initialLoad": "Enabled"
+              }
             }
           }
         },
@@ -153,5 +166,9 @@
     "app": {
       "enableLazyLoading": true
     }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "cap-course"
   }
 }

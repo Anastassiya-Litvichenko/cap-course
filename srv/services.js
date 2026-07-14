@@ -59,6 +59,15 @@ class ProcessorService extends cds.ApplicationService {
       }
     });
 
+    this.on('getOnPremiseString', async () => {
+      const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
+      const response = await executeHttpRequest(
+        { destinationName: 'local-onprem' },
+        { method: 'GET', url: '/api/hello' }
+      );
+      return response.data;
+    });
+
     return super.init();
   }
 
